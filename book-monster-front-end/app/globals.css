@@ -1,0 +1,493 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* 动态视口高度 - 解决移动端浏览器地址栏问题 */
+:root {
+  --vh: 1vh;
+  --scale-factor: 1;
+}
+
+/* 全屏容器样式 */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  overflow: hidden;
+  position: fixed;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 游戏主容器 - 添加自动缩放 */
+.game-container {
+  width: 100vw;
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  overflow: hidden;
+  position: relative;
+  transform-origin: top left;
+  transform: scale(var(--scale-factor));
+}
+
+/* 竖屏样式 */
+@media screen and (orientation: portrait) {
+  .portrait\:text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .portrait\:text-3xl {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+
+  .portrait\:text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  .portrait\:text-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .portrait\:text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .portrait\:py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .portrait\:py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .portrait\:p-4 {
+    padding: 1rem;
+  }
+
+  .portrait\:gap-4 {
+    gap: 1rem;
+  }
+
+  .portrait\:mb-4 {
+    margin-bottom: 1rem;
+  }
+
+  .portrait\:mb-6 {
+    margin-bottom: 1.5rem;
+  }
+
+  .portrait\:mt-2 {
+    margin-top: 0.5rem;
+  }
+
+  .portrait\:mt-6 {
+    margin-top: 1.5rem;
+  }
+
+  .portrait\:grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .portrait\:flex-row {
+    flex-direction: row;
+  }
+
+  .portrait\:text-left {
+    text-align: left;
+  }
+
+  .portrait\:w-20 {
+    width: 5rem;
+  }
+
+  .portrait\:h-20 {
+    height: 5rem;
+  }
+
+  .portrait\:w-16 {
+    width: 4rem;
+  }
+
+  .portrait\:h-16 {
+    height: 4rem;
+  }
+
+  .portrait\:line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* 横屏样式 */
+@media screen and (orientation: landscape) {
+  .landscape\:text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  .landscape\:text-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .landscape\:text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .landscape\:text-xs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  .landscape\:py-0 {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .landscape\:py-1 {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .landscape\:py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .landscape\:p-1 {
+    padding: 0.25rem;
+  }
+
+  .landscape\:p-2 {
+    padding: 0.5rem;
+  }
+
+  .landscape\:p-3 {
+    padding: 0.75rem;
+  }
+
+  .landscape\:mb-2 {
+    margin-bottom: 0.5rem;
+  }
+
+  .landscape\:mt-1 {
+    margin-top: 0.25rem;
+  }
+
+  .landscape\:mt-4 {
+    margin-top: 1rem;
+  }
+
+  .landscape\:gap-2 {
+    gap: 0.5rem;
+  }
+
+  .landscape\:gap-3 {
+    gap: 0.75rem;
+  }
+
+  .landscape\:gap-4 {
+    gap: 1rem;
+  }
+
+  .landscape\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .landscape\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .landscape\:flex-row {
+    flex-direction: row;
+  }
+
+  .landscape\:flex-col {
+    flex-direction: column;
+  }
+
+  .landscape\:text-left {
+    text-align: left;
+  }
+
+  .landscape\:text-center {
+    text-align: center;
+  }
+
+  .landscape\:w-12 {
+    width: 3rem;
+  }
+
+  .landscape\:h-12 {
+    height: 3rem;
+  }
+
+  .landscape\:w-16 {
+    width: 4rem;
+  }
+
+  .landscape\:h-16 {
+    height: 4rem;
+  }
+
+  .landscape\:w-20 {
+    width: 5rem;
+  }
+
+  .landscape\:h-20 {
+    height: 5rem;
+  }
+
+  .landscape\:line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* 移动端横屏优化 */
+@media screen and (max-width: 768px) {
+  .landscape-optimized {
+    @apply text-sm;
+  }
+
+  /* 防止移动端缩放 */
+  html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* 优化触摸体验 */
+  button,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* 隐藏滚动条 */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: none;
+  }
+}
+
+/* 极小屏幕横屏优化 */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .landscape-optimized {
+    @apply text-xs;
+  }
+
+  .landscape-optimized .space-y-4 > * + * {
+    @apply mt-1;
+  }
+
+  .landscape-optimized .space-y-3 > * + * {
+    @apply mt-1;
+  }
+
+  .landscape-optimized .p-4 {
+    @apply p-1;
+  }
+
+  .landscape-optimized .p-3 {
+    @apply p-1;
+  }
+
+  .landscape-optimized .py-2 {
+    @apply py-1;
+  }
+}
+
+/* 文本截断工具类 */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 全屏模式样式 */
+.fullscreen-mode {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: calc(var(--vh, 1vh) * 100) !important;
+  z-index: 9999 !important;
+  background: white;
+}
+
+/* PWA 样式 */
+@media all and (display-mode: standalone) {
+  body {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+}
+
+/* iOS Safari 特殊处理 */
+@supports (-webkit-touch-callout: none) {
+  .game-container {
+    height: -webkit-fill-available;
+  }
+}
+
+/* 淡入淡出动画 */
+@keyframes fade-in-out {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
+
+.animate-fade-in-out {
+  animation: fade-in-out 2s ease-in-out;
+}
+
+/* 全屏按钮悬浮效果 */
+.fullscreen-button {
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  z-index: 10000 !important;
+}
+
+.fullscreen-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 自适应缩放 */
+@media screen and (max-width: 480px) and (orientation: landscape) {
+  :root {
+    --scale-factor: 0.9;
+  }
+}
+
+@media screen and (max-height: 400px) and (orientation: landscape) {
+  :root {
+    --scale-factor: 0.8;
+  }
+}
+
+@media screen and (max-height: 350px) and (orientation: landscape) {
+  :root {
+    --scale-factor: 0.75;
+  }
+}
+
+/* 确保flex容器正确填充空间 */
+.min-w-0 {
+  min-width: 0;
+}
+
+/* 防止内容溢出 */
+.overflow-hidden {
+  overflow: hidden;
+}
