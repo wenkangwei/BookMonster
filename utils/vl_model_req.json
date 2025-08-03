@@ -1,0 +1,8 @@
+{"prompt": "/home/wwk/workspace/ai_project/BookMonster/data/character/images/pikaqiu.png 请你先把图片里面的文字，画面进行理解，然后根据内容生成类型里面图片里的怪物角色，风格要一致",
+"model": "qwen2.5vl:7b",
+"stream": false,
+"images":["/home/wwk/workspace/ai_project/BookMonster/data/character/images/pikaqiu.png"],
+"type":"text",
+"title": "pikaqiu",
+"description":"pikaqiu的属性是雷属性或者高铁属性，喜欢看的书籍是钢铁就是力量，它的主人叫小k是个算法工程师"
+}

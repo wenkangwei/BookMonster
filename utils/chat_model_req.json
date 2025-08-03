@@ -1,0 +1,6 @@
+{
+    "monster_id": "0",
+    "prompt": "你控制的角色目前hp=5,maxHp=10, 你攻击的选项只有[1,2,3], 每个选项对应难度分别为[3,4,5]",
+    "model": "qwen2.5:3b",
+    "stream": false
+}
