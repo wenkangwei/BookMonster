@@ -123,8 +123,13 @@ gb_state = GlobalState()
 # ----------------------
 class EnermyState (BaseModel):
     monster_id: int
-    prompt: str
+    # prompt: str
     model: str = OLLAMA_MODEL  # 允许前端指定模型
+    current_hp: int = 0
+    available_question_ids: List[str] = []
+    health_state: str = "health"
+
+
 
 class NextAction_Prompt:
     def __init__(self) -> None:
@@ -160,10 +165,12 @@ async def enemy_action(request: EnermyState):
     """
     调用Ollama生成回复
     输入:
-        pdf path
-        image path
-        description
-        monster title
+        {
+            "monster_id": 0,
+            "current_hp": 0,
+            "available_question_ids": ["20230405009", "20230405010"],
+            "health_state": "health"
+        }
     输出:
         bookmonster json
     请求示例：
@@ -171,11 +178,27 @@ async def enemy_action(request: EnermyState):
         "action": "attack",
         "tools": question_id
     }
+
+    return format:
+        {
+        "action": "attack",
+        "tools": {
+            "question_id": question_id,
+            "question_difficulty": question_difficulty,
+            "question": question,
+            "answer1": answer1,
+            "answer2": answer2,
+            "answer3": answer3,
+            "correct_answer": correct_answer,
+        },
+        "reply": "我会攻击你"
+        }
     """
     ret_response = {
         "action": "attack",
         "tools": ""
     }
+    print("request: ",request)
     try:
         async with httpx.AsyncClient() as client:
             next_action_prompt = NextAction_Prompt()
@@ -189,6 +212,10 @@ async def enemy_action(request: EnermyState):
             else:
                 action_list = []
                 enemy_state = ""
+            for question in gb_state.enermy_monsters_states[monster_id].remain_question:
+                if question[0] in request.available_question_ids:
+                    action_list.append(question)
+        
             print("action_list: ", action_list)
             print(f"{OLLAMA_BASE_URL}/api/generate: ", OLLAMA_CHAT_MODEL)
             if len(gb_state.player_monsters_states) > 0:
@@ -208,28 +235,39 @@ async def enemy_action(request: EnermyState):
                 timeout=60.0
             )
             response.raise_for_status()
-            
             result = response.json()
-            
+            print(OLLAMA_CHAT_MODEL +" Result: " + str(result['response']))
             if result.get("response", "No response") != "No response":
-                response = result.get("response")
-                response = response.strip()
-                json_response = json.loads(response)
+                resp = result.get("response")
+                json_response = json.loads(resp.strip())
                 question_id = json_response.get('tools', '').strip()
                 tools = {}
                 if question_id in gb_state.enermy_monsters_states[monster_id].remain_question:
+                    # pop 出来的tools 的json格式是 {question:['','',''], answer1:"",answer2:"",answer3:"", correct_answer:""}
                     tools = gb_state.enermy_monsters_states[monster_id].remain_question.pop(question_id)
-                    tools['question_id'] = tools['question'][0]
-                    tools['question'] = tools['question'][1]
-                    tools['question_difficulty'] = tools['question'][2]
-
+                    print("selected tools: ", tools)
+                    question_info = tools.pop('question')
+                    tools['question_id'] = question_info[0] if not question_info[0].startswith("questions_") else question_info[0][10:]
+                    tools['question_difficulty'] = question_info[2]
+                    tools['question'] = question_info[1]
+                    
+                    # correct_answer_k = tools['correct_answer']
+                    # correct_answer = tools.pop("answer"+correct_answer_k)
+                    # answer_list = []
+                    # for k in tools:
+                    #     if k.startswith("answer"):
+                    #         answer_list.append(tools[k])
+                    # for i in range(len(answer_list)):
+                    #     tools["answer"+str(i+1)] = answer_list[i]
+                    # tools["correct_answer"] = correct_answer
                 ret_response =  {
                     'status': 'success',
                     'action': json_response.get('action', 'attack'),
                     'tools': tools
                 }
-        print(OLLAMA_CHAT_MODEL +" Result: " + str(result))
-        log_operation("Ollama对话", str(result))
+        
+        print("ret_response: ", ret_response)
+        log_operation("Ollama对话", str(ret_response))
         return ret_response
     except httpx.HTTPStatusError as e:
         log_operation("enermy_action错误", f"HTTP错误: {e.response.text}", level="error")
@@ -238,46 +276,6 @@ async def enemy_action(request: EnermyState):
         log_operation("Ollama错误", str(e), level="error")
         raise HTTPException(status_code=500, detail=str(e))
 
-
-
-# @app.post("/api/chat")
-# async def chat_with_ollama(request: LLMRequest):
-#     """
-#     调用Ollama生成回复
-#     请求示例：
-#     {
-#         "prompt": "如何学习Python？",
-#         "model": "mistral"  # 可选覆盖默认模型
-#     }
-#     """
-#     try:
-#         async with httpx.AsyncClient() as client:
-#             # 调用Ollama的生成API
-#             response = await client.post(
-#                 f"{OLLAMA_CHAT_MODEL}/api/generate",
-#                 json={
-#                     "model": request.model,
-#                     "prompt": request.prompt,
-#                     "stream": False  # 非流式响应
-#                 },
-#                 timeout=30.0
-#             )
-#             response.raise_for_status()
-#             result = response.json()
-        
-#         log_operation("Ollama对话", f"模型: {request.model} | 提问: {request.prompt}")
-#         return {
-#             "status": "success",
-#             "response": result.get("response", "No response"),
-#             "model": request.model
-#         }
-    
-#     except httpx.HTTPStatusError as e:
-#         log_operation("Ollama错误", f"HTTP错误: {e.response.text}", level="error")
-#         raise HTTPException(status_code=e.response.status_code, detail="Ollama服务错误")
-#     except Exception as e:
-#         log_operation("Ollama错误", str(e), level="error")
-#         raise HTTPException(status_code=500, detail=str(e))
 
 # ----------------------
 # 2. 文生图接口（适配Ollama多模态模型）
@@ -396,7 +394,7 @@ class MonsterGeneration_Prompt:
 {image_path} 你是一个专业的book monster生成器，你的任务是根据用户提供文章或文段(description)和对输入图片的理解生成对应的问题列表和对应的答案选项列表,其中答案选项只能有4条只有1条正确，作为一个bookmonster的知识库。
 要求：你需要用这个知识库生成一个bookmonster角色， 角色信息包括它的name，level，skill, attribute， maxHp， 并且以json格式返回， 不要回复多余的内容
 level:对应问题的难度限制在1-10之间，1表示最简单，10表示最难。
-skill: 对应知识库的问题的类型， 是一个json的list， 每个元素是一个json对象， 包含question和answer两个字段， question是问题， answer是答案。
+skill: 对应知识库的问题的类型， 是一个json的list， 每个元素是一个json对象.
 attribute: 对应怪物的属性， 属性包括 草属性，雷属性，冰属性，火属性，岩石属性
 maxHp:对应怪物知识库里面问题的条数，1表示最简单，10表示最难。
 
@@ -410,11 +408,12 @@ prompt: {prompt}
         self.output_format = """
         最高优先级要求: 
         1. 你只能按照下面的JSON格式输出并填写内容， 不要输出任何非json格式的内容。输出只能是{符合开头,  以}符合结尾
-        2. 你要把skill列表里面20条json数据。 
-        3. 每条json里面question对应的value 是一个列表，第一位是问题ID, 第二个是问题的内容， 第3位是问题的难度。问题ID通过用时间YYYYMMDDHH+序号的方式拼接去构造确保不会重复。 难度分成1到10个整数等级， 1表示最简单，10表示最难。
-        4. 每条json里面answer1, answer2,answer3, correct_answer 对应的value是 string类型的回答并且内容不能重复
+        2. 你要把skill列表里填入20条json数据。 
+        3. 每条json里的key只有question, answer1,answer2,answer3,answer4,correct_answer
+        3. question对应的value 是一个列表，第一位是问题ID, 第二位是问题的内容， 第3位是问题的难度。问题ID通过用时间YYYYMMDDHH+序号的方式拼接去构造确保不会重复。 难度分成1到10个整数等级， 1表示最简单，10表示最难。
+        4. answer1, answer2,answer3, answer4 对应的value的回答内容不能一样
+        5.correct_answer 对应的value只返回数值1，2，3，4其中一个值， 代表第几个question是正确答案。 比如"correct_answer": "1"代表question1是正确答案
         
-
  {
         "maxHp": "10",
         "skill": [{
@@ -422,7 +421,8 @@ prompt: {prompt}
             "answer1": "",
             "answer2": "",
             "answer3": "",
-            "correct_answer": "",
+            "answer4": "",
+            "correct_answer": "1"
         }],
         "attribute": "",
         "name": "",
@@ -436,14 +436,30 @@ prompt: {prompt}
 async def generate_bookmonster(request : GenerateRequest):
     """
     调用Ollama生成回复
-    输入:
-        pdf path
-        image path
-        description
-        monster title
-    输出:
-        bookmonster json
-    请求格式示例：
+    输入request:
+        {
+            "pdf": "pdf path",
+            "image": "image path",
+            "description": "description",
+            "title": "monster title"
+        }
+    大模型输出格式：
+        {
+            "maxHp": "10",
+            "skill": [{
+                "question": ["question_id","content","difficulty"],
+                "answer1": "",
+                "answer2": "",
+                "answer3": "",
+                "answer4": "",
+                "correct_answer": "1"
+            }],
+            "attribute": "",
+            "name": "",
+            "level": ""
+            "monster_image": <image_path>
+        }
+    最终输出response 格式示例：
     {
         "maxHp": "10",
         "health_state": "health",
@@ -451,6 +467,7 @@ async def generate_bookmonster(request : GenerateRequest):
             "question1": "",
             "question2": "",
             "question3": "",
+            "correct_answer": "1"
         }],
         "attribute": "",
         "name": "",
@@ -468,13 +485,27 @@ async def generate_bookmonster(request : GenerateRequest):
         "level": "1",
         "monster_image": ""
     }
+    def invalidformat(skill):
+        if 'question' not in skill:
+            return True
+        if 'answer1' not in skill:
+            return True
+        if 'answer2' not in skill:
+            return True
+        if 'answer3' not in skill:
+            return True
+        if 'answer4' not in skill:
+            return True
+        if 'correct_answer' not in skill:
+            return True
+        return False
     try:
-        print("Processing generate_bookmonster request: ", request.prompt)
+        print("Processing generate_bookmonster request: ", request.description)
         log_operation("Processing generate_bookmonster request:", request.prompt)
         async with httpx.AsyncClient() as client:
             # 调用Ollama的生成API
             prompt_gen = MonsterGeneration_Prompt()
-            instruction  = prompt_gen.system_prompt_gen_monster.format(image_path=request.images[0],
+            instruction  = prompt_gen.system_prompt_gen_monster.format(image_path=request.images[0] if len(request.images)>0 else "",
                         title=request.title,
                         description=request.description,
                         prompt=request.prompt)  + "\n"+  prompt_gen.output_format
@@ -490,14 +521,37 @@ async def generate_bookmonster(request : GenerateRequest):
             )
             response.raise_for_status()
             result = response.json()
-            print("result: ", result.get('response'))
+            
             response_str = result.get('response')
             response_str = response_str.replace("```json\n", '').replace("```", '')
             paresed_result = json.loads(response_str)
+            print(OLLAMA_MODEL +" Result: " + str(paresed_result))
             for k in ret_response:
                 if k in paresed_result:
                     ret_response[k] = paresed_result[k]
-                    print(k + ":",  ret_response[k])
+                    if k == 'skill':
+                        skill = ret_response[k]
+                        filter_skill = []
+                        for i in range(len(skill )):
+                            # check if data is valid
+                            if invalidformat(skill[i]):
+                                continue
+                            # print("skill: ", skill[i])
+                            # post-process data
+                            correct_answer_k = "answer"+ str(skill[i]['correct_answer'])
+                            new_qa= {}
+                            new_qa['question'] = skill[i]['question']
+                            if new_qa['question'][0].startswith("question_"):
+                                new_qa['question'][0] = new_qa['question'][0][9:]
+                            correct_answer = skill[i][correct_answer_k]
+                            new_answers = [v for k, v in skill[i].items() if k.startswith("answer") and k!=correct_answer_k]
+                            
+                            for j in range(len(new_answers)):
+                                new_qa["answer"+str(j+1)] = new_answers[j]
+                            new_qa['correct_answer'] = correct_answer
+                            filter_skill.append(new_qa)
+                        ret_response[k] = filter_skill
+                    print( k+ ":",  ret_response[k])
             # 这里先不用mcp 生成图片的接口， 而是直接随机用生成的monster图片
             monster_brochure = gb_state.monster_brochure
             print("monster_brochure size: ", monster_brochure)
@@ -508,8 +562,8 @@ async def generate_bookmonster(request : GenerateRequest):
                 print("update: monster_image: ", ret_response['monster_image'])
             # 
             print()
-        print(OLLAMA_CHAT_MODEL +" Result: " + str(ret_response))
-        log_operation("Ollama对话", str(ret_response))
+        
+        log_operation("Response result:", str(ret_response))
 
         monster_state = MonsterState(ret_response)
         if request.is_player:
@@ -534,14 +588,14 @@ async def generate_bookmonster(request : GenerateRequest):
         skills = [
             {
                 "question": ["q1", f"如何应对{request.title}的火焰攻击？", "25"],
-                "answer1": "使用水系技能",
+                "answer1": "使用火系技能",
                 "answer2": "使用草系技能",
                 "answer3": "使用电系技能",
                 "correct_answer": "使用水系技能",
             },
             {
                 "question": ["q2", f"面对{request.title}的强力物理攻击时应该？", "30"],
-                "answer1": "提高防御力",
+                "answer1": "提高攻击力",
                 "answer2": "使用反击技能",
                 "answer3": "进行闪避",
                 "correct_answer": "提高防御力",
@@ -550,13 +604,13 @@ async def generate_bookmonster(request : GenerateRequest):
                 "question": ["q3", f"{request.title}使用毒系技能时如何应对？", "20"],
                 "answer1": "使用解毒技能",
                 "answer2": "使用超能力技能",
-                "answer3": "使用钢系技能",  
+                "answer3": "使用岩石系技能",  
                 "correct_answer": "使用钢系技能",
             },
             {
                 "question": ["q4", f"如何对付飞行中的{request.title}？", "35"],
                 "answer1": "使用地面系技能",
-                "answer2": "使用电系技能",
+                "answer2": "使用火技能",
                 "answer3": "使用岩石系技能",
                 "correct_answer": "使用电系技能",
             }
