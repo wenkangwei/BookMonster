@@ -1,0 +1,41 @@
+model:
+  qwen2.5vl:
+    model_name: qwen2.5vl:7b
+    model_path: /home/wwk/workspace/ai_project/BookMonster/model/qwen2.5vl
+  qwen2.5:
+    model_name: qwen2.5:3b
+    model_path: /home/wwk/workspace/ai_project/BookMonster/model/qwen2.5
+
+memory:
+  redis:
+    host: localhost
+    port: 6379
+    password: ""
+    db: 0
+    timeout: 5000
+  minio:
+    host: localhost
+    port: 9000
+    access_key: minioadmin
+    secret_key: minioadmin
+  elastic_search:
+    host: localhost
+    port: 9200
+    username: elastic
+    password: changeme
+  milvus:
+    host: localhost
+    port: 19530
+    username: root
+    password: Milvus
+    index: book_monster
+  faiss:
+    data_root: /home/wwk/workspace/ai_project/BookMonster/data/memory/faiss
+    index_name: ./faiss.index
+    dimension: 128
+  mysql:
+    host: localhost
+    port: 3306
+    user: bm
+    password: bookmonster
+    database: open_book_monster

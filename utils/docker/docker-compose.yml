@@ -1,0 +1,415 @@
+version: '3.5'
+services:
+  etcd:
+    container_name: bm-milvus-etcd
+    image: quay.io/coreos/etcd:v3.5.14
+    profiles: ['middleware', 'mysql-setup', 'mysql']
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - ./data/etcd:/etcd
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio:
+    container_name: bm-milvus-minio
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    profiles: ['middleware', 'mysql-setup', 'mysql']
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "9001:9001"
+      - "9000:9000"
+    volumes:
+      - ./data/minio:/minio_data
+    command: minio server /minio_data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  milvus_standalone:
+    container_name: bm-milvus-standalone
+    image: milvusdb/milvus:v2.5.1
+    command: ["milvus", "run", "standalone"]
+    profiles: ['middleware', 'mysql-setup', 'mysql']
+    security_opt:
+    - seccomp:unconfined
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    volumes:
+      - ./data/milvus:/var/lib/milvus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      start_period: 90s
+      timeout: 20s
+      retries: 3
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    depends_on:
+      - "etcd"
+      - "minio"
+      - "mysql"
+      - "redis"
+      - "elasticsearch"
+
+  mysql:
+    image: mysql:8.4.5
+    container_name: bm_mysql
+    env_file: .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-open_book_monster}
+      MYSQL_USER: ${MYSQL_USER:-work}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-bookmonster}
+    profiles: ['middleware', 'mysql-setup', 'mysql']
+    # env_file: *env_file
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'mysqladmin',
+          'ping',
+          '-h',
+          'localhost',
+          '-u$${MYSQL_USER}',
+          '-p$${MYSQL_PASSWORD}',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # networks:
+    #   - bm-network
+
+  redis:
+    image: bitnami/redis:8.0
+    container_name: bm-redis
+    user: root
+    privileged: true
+    profiles: ['middleware']
+    # env_file: *env_file
+    env_file: .env
+    environment:
+      REDIS_AOF_ENABLED: ${REDIS_AOF_ENABLED:-no}
+      REDIS_PORT_NUMBER: ${REDIS_PORT_NUMBER:-6379}
+      REDIS_IO_THREADS: ${REDIS_IO_THREADS:-4}
+      ALLOW_EMPTY_PASSWORD: ${ALLOW_EMPTY_PASSWORD:-yes}
+    ports:
+      - '6379:6379'
+    volumes:
+      - ./data/bitnami/redis:/bitnami/redis/data:rw,Z
+    command: >
+      bash -c "
+        /opt/bitnami/scripts/redis/setup.sh
+        # Set proper permissions for data directories
+        chown -R redis:redis /bitnami/redis/data
+        chmod g+s /bitnami/redis/data
+
+        exec /opt/bitnami/scripts/redis/entrypoint.sh /opt/bitnami/scripts/redis/run.sh
+      "
+    # depends_on:
+    #   minio-setup:
+    #     condition: service_completed_successfully
+    #   mysql-setup-schema:
+    #     condition: service_completed_successfully
+    #   mysql-setup-init-sql:
+    #     condition: service_completed_successfully
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 20s
+      retries: 10
+      start_period: 10s
+    # networks:
+    #   - bm-network
+
+
+  elasticsearch:
+    image: bitnami/elasticsearch:8.18.0
+    container_name: bm-elasticsearch
+    user: root
+    privileged: true
+    profiles: ['middleware']
+    env_file: .env
+    environment:
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+      - "discovery.type=single-node"  # 必须明确声明单机模式
+    ports:
+      - '9200:9200'
+    volumes:
+      - ./data/bitnami/elasticsearch:/bitnami/elasticsearch/data:rw,Z,delegated
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health"]
+
+    # networks:
+    #   - bm-network
+    # command: >
+    #   bash -c "
+    #     /opt/bitnami/scripts/elasticsearch/setup.sh
+    #     # Set proper permissions for data directories
+    #     chown -R elasticsearch:elasticsearch /bitnami/elasticsearch/data
+    #     chmod g+s /bitnami/elasticsearch/data
+
+    #     # Create plugin directory
+    #     mkdir -p /bitnami/elasticsearch/plugins;
+
+    #     # Unzip plugin to plugin directory and set correct permissions
+    #     echo 'Installing smartcn plugin...';
+    #     if [ ! -d /opt/bitnami/elasticsearch/plugins/analysis-smartcn ]; then
+
+    #       # Download plugin package locally
+    #       echo 'Copying smartcn plugin...';
+    #       cp /opt/bitnami/elasticsearch/analysis-smartcn.zip /tmp/analysis-smartcn.zip 
+
+    #       elasticsearch-plugin install file:///tmp/analysis-smartcn.zip
+    #       if [[ "$$?" != "0" ]]; then
+    #         echo 'Plugin installation failed, exiting operation';
+    #         rm -rf /opt/bitnami/elasticsearch/plugins/analysis-smartcn
+    #         exit 1;
+    #       fi;
+    #       rm -f /tmp/analysis-smartcn.zip;
+    #     fi;
+
+    #     # Create marker file indicating plugin installation success
+    #     touch /tmp/es_plugins_ready;
+    #     echo 'Plugin installation successful, marker file created';
+
+    #     # Start Elasticsearch
+    #     exec /opt/bitnami/scripts/elasticsearch/entrypoint.sh /opt/bitnami/scripts/elasticsearch/run.sh
+
+    #     echo -e "⏳ Adjusting Elasticsearch disk watermark settings..."
+    #   "
+
+
+
+networks:
+  default:
+    name: milvus
+
+# version: '3.5'
+# services: 
+#   etcd:
+#     container_name: milvus-etcd
+#     image: quay.io/coreos/etcd:v3.5.14
+#     profiles: ['middleware', 'milvus']
+#     environment:
+#       - ETCD_AUTO_COMPACTION_MODE=revision
+#       - ETCD_AUTO_COMPACTION_RETENTION=1000
+#       - ETCD_QUOTA_BACKEND_BYTES=4294967296
+#       - ETCD_SNAPSHOT_COUNT=50000
+#     volumes:
+#       - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/etcd:/etcd
+#     command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+#     healthcheck:
+#       test: ["CMD", "etcdctl", "endpoint", "health"]
+#       interval: 30s
+#       timeout: 20s
+#       retries: 3
+
+#   minio:
+#     container_name: milvus-minio
+#     image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+#     profiles: ['middleware', 'milvus']
+#     environment:
+#       MINIO_ACCESS_KEY: minioadmin
+#       MINIO_SECRET_KEY: minioadmin
+#     ports:
+#       - "9001:9001"
+#       - "9000:9000"
+#     volumes:
+#       - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/minio:/minio_data
+#     command: minio server /minio_data --console-address ":9001"
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+#       interval: 30s
+#       timeout: 20s
+#       retries: 3
+
+#   standalone:
+#     container_name: bm-milvus
+#     image: milvusdb/milvus:v2.5.1
+#     profiles: ['middleware', 'milvus']
+#     command: ["milvus", "run", "standalone"]
+#     security_opt:
+#       - seccomp:unconfined
+#     environment:
+#       ETCD_ENDPOINTS: etcd:2379
+#       MINIO_ADDRESS: minio:9000
+#     volumes:
+#       - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
+#       # - ./milvus_data:/var/lib/milvus
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+#       interval: 30s
+#       start_period: 90s
+#       timeout: 20s
+#       retries: 3
+#     ports:
+#       - "19530:19530"
+#       - "9091:9091"
+#     depends_on:
+#       - "etcd"
+#       - "minio"
+
+#   # mysql:
+#   #   image: mysql:8.4.5
+#   #   container_name: bm_mysql
+#   #   env_file: .env
+#   #   environment:
+#   #     MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+#   #     MYSQL_DATABASE: ${MYSQL_DATABASE:-open_book_monster}
+#   #     MYSQL_USER: ${MYSQL_USER:-work}
+#   #     MYSQL_PASSWORD: ${MYSQL_PASSWORD:-bookmonster}
+#   #   profiles: ['middleware', 'mysql-setup', 'mysql']
+#   #   # env_file: *env_file
+#   #   ports:
+#   #     - '3306:3306'
+#   #   volumes:
+#   #     - ./data/mysql:/var/lib/mysql
+#   #   command:
+#   #     - --character-set-server=utf8mb4
+#   #     - --collation-server=utf8mb4_unicode_ci
+#   #   healthcheck:
+#   #     test:
+#   #       [
+#   #         'CMD',
+#   #         'mysqladmin',
+#   #         'ping',
+#   #         '-h',
+#   #         'localhost',
+#   #         '-u$${MYSQL_USER}',
+#   #         '-p$${MYSQL_PASSWORD}',
+#   #       ]
+#   #     interval: 10s
+#   #     timeout: 5s
+#   #     retries: 5
+#   #     start_period: 30s
+#   #   networks:
+#   #     - bm-network
+
+#   # redis:
+#   #   image: bitnami/redis:8.0
+#   #   container_name: bm-redis
+#   #   user: root
+#   #   privileged: true
+#   #   profiles: ['middleware']
+#   #   # env_file: *env_file
+#   #   env_file: .env
+#   #   environment:
+#   #     REDIS_AOF_ENABLED: ${REDIS_AOF_ENABLED:-no}
+#   #     REDIS_PORT_NUMBER: ${REDIS_PORT_NUMBER:-6379}
+#   #     REDIS_IO_THREADS: ${REDIS_IO_THREADS:-4}
+#   #     ALLOW_EMPTY_PASSWORD: ${ALLOW_EMPTY_PASSWORD:-yes}
+#   #   ports:
+#   #     - '6379:6379'
+#   #   volumes:
+#   #     - ./data/bitnami/redis:/bitnami/redis/data:rw,Z
+#   #   command: >
+#   #     bash -c "
+#   #       /opt/bitnami/scripts/redis/setup.sh
+#   #       # Set proper permissions for data directories
+#   #       chown -R redis:redis /bitnami/redis/data
+#   #       chmod g+s /bitnami/redis/data
+
+#   #       exec /opt/bitnami/scripts/redis/entrypoint.sh /opt/bitnami/scripts/redis/run.sh
+#   #     "
+#   #   # depends_on:
+#   #   #   minio-setup:
+#   #   #     condition: service_completed_successfully
+#   #   #   mysql-setup-schema:
+#   #   #     condition: service_completed_successfully
+#   #   #   mysql-setup-init-sql:
+#   #   #     condition: service_completed_successfully
+#   #   healthcheck:
+#   #     test: ['CMD', 'redis-cli', 'ping']
+#   #     interval: 5s
+#   #     timeout: 20s
+#   #     retries: 10
+#   #     start_period: 10s
+#   #   networks:
+#   #     - bm-network
+
+
+#   # elasticsearch:
+#   #   image: bitnami/elasticsearch:8.18.0
+#   #   container_name: bm-elasticsearch
+#   #   user: root
+#   #   privileged: true
+#   #   profiles: ['middleware']
+#   #   env_file: .env
+#   #   environment:
+#   #     - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+#   #     - "discovery.type=single-node"  # 必须明确声明单机模式
+#   #   ports:
+#   #     - '9200:9200'
+#   #   volumes:
+#   #     - ./data/bitnami/elasticsearch:/bitnami/elasticsearch/data:rw,Z,delegated
+#   #   healthcheck:
+#   #     test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health"]
+#   #   networks:
+#   #     - bm-network
+#   #   # command: >
+#   #   #   bash -c "
+#   #   #     /opt/bitnami/scripts/elasticsearch/setup.sh
+#   #   #     # Set proper permissions for data directories
+#   #   #     chown -R elasticsearch:elasticsearch /bitnami/elasticsearch/data
+#   #   #     chmod g+s /bitnami/elasticsearch/data
+
+#   #   #     # Create plugin directory
+#   #   #     mkdir -p /bitnami/elasticsearch/plugins;
+
+#   #   #     # Unzip plugin to plugin directory and set correct permissions
+#   #   #     echo 'Installing smartcn plugin...';
+#   #   #     if [ ! -d /opt/bitnami/elasticsearch/plugins/analysis-smartcn ]; then
+
+#   #   #       # Download plugin package locally
+#   #   #       echo 'Copying smartcn plugin...';
+#   #   #       cp /opt/bitnami/elasticsearch/analysis-smartcn.zip /tmp/analysis-smartcn.zip 
+
+#   #   #       elasticsearch-plugin install file:///tmp/analysis-smartcn.zip
+#   #   #       if [[ "$$?" != "0" ]]; then
+#   #   #         echo 'Plugin installation failed, exiting operation';
+#   #   #         rm -rf /opt/bitnami/elasticsearch/plugins/analysis-smartcn
+#   #   #         exit 1;
+#   #   #       fi;
+#   #   #       rm -f /tmp/analysis-smartcn.zip;
+#   #   #     fi;
+
+#   #   #     # Create marker file indicating plugin installation success
+#   #   #     touch /tmp/es_plugins_ready;
+#   #   #     echo 'Plugin installation successful, marker file created';
+
+#   #   #     # Start Elasticsearch
+#   #   #     exec /opt/bitnami/scripts/elasticsearch/entrypoint.sh /opt/bitnami/scripts/elasticsearch/run.sh
+
+#   #   #     echo -e "⏳ Adjusting Elasticsearch disk watermark settings..."
+#   #   #   "
+
+
+# # networks:
+# #   bm-network:
+# #     driver: bridge
+
+# networks:
+#   default:
+#     name: book_monster_network
