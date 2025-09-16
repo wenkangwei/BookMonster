@@ -32,12 +32,20 @@ tmp_data={"maxHp":"10","skill":[{"question":["202304010001","pikaqiu的属性是
 app = FastAPI(title=" BookMonster Agent API")
 
 # 允许React前端跨域访问
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["http://localhost:8000"],
+#     allow_credentials=True,
+#     allow_methods=["OPTIONS", "POST", "GET"],
+#     allow_headers=["*"],
+# )
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Next.js 开发服务器
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # 允许所有 HTTP 方法，包括 OPTIONS
+    allow_headers=["*"],  # 允许所有头部
 )
 
 
@@ -522,7 +530,7 @@ class EnermyState (BaseModel):
 
 
 @app.post("/init_monster")
-async def initalize_monster(request: Optional[dict] = None):
+async def initalize_monster(request: dict):
     """
     调用Ollama的多模态模型生成图片
     注意：需要Ollama已拉取支持多模态的模型（如llava）
