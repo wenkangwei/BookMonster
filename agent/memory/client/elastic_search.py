@@ -10,12 +10,6 @@ class ES_Client():
             verify_certs=False
         )
     
-    def create_doc(self, index, data):
-        """
-        data: json
-        """
-        res = self.es.index(index=index, body=data)
-        return res["_id"]
     
     def get_doc(self, index, id):
         """
@@ -30,6 +24,31 @@ class ES_Client():
         res = self.es.update(index=index, id=id, body={"doc": data})
         return res["_id"]
     
+    def batch_create_doc(self, index_name, updates):
+        """
+        批量更新
+        index_name: 
+        updates: {doc_id: dictionary_of_content}
+        """
+        try:
+            actions = []
+            for doc_id, update_data in updates.items():
+                actions.append({
+                    "_index": index_name,
+                    "_id": doc_id,
+                    "doc": update_data
+                })
+            
+            from elasticsearch.helpers import bulk
+            ret = bulk(self.es, actions,
+                        stats_only=False,  # 获取详细错误信息
+                        raise_on_error=False  # 不抛出异常，手动处理错误
+                    )
+            print("batch_create_doc ret: ",ret)
+            return ret
+        except Exception as e:
+            print("batch_create_doc Exception Error: ", str(e))
+        return 
     def delete_doc(self, index, id):
         """
         arguments: 
@@ -64,7 +83,7 @@ class ES_Client():
         res = self.es.search(index=index, body=query)
         return res
 
-    def insert_doc(self, index, data, id=''):
+    def create_doc(self, index, data, id=''):
         """
         arguments: 
             index: str
@@ -75,3 +94,23 @@ class ES_Client():
             return res["_id"]
         res = self.es.index(index=index, id=id, body=data)
         return res["_id"]
+    
+    def exists(self, index):
+        return self.es.indices.exists(index=index)
+    
+    def search(self, index, keyword, fields='content',fuzziness = "AUTO"):
+        if not isinstance(fields, list):
+            fields = list(fields)
+        query = {
+                "query": {
+                    "multi_match": {
+                        "query": keyword,
+                        "fields": fields,
+                        "fuzziness": fuzziness,
+                        "type": "best_fields",
+                        "operator": "or"
+                    }
+                }
+            }
+
+        return self.search_doc(index, query)

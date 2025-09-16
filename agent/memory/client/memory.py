@@ -18,8 +18,10 @@ import numpy as np
 class MemoryClient:
     def __init__(self, context):
         self.es_client = ES_Client (context)
-        self.redis_client = Reids_Client(context)
-        self.mysql_client = MySQL_Client(context)
+        self.redis_client = None
+        self.mysql_client = None
+        # self.redis_client = Reids_Client(context)
+        # self.mysql_client = MySQL_Client(context)
         self.faiss_client = Faiss_Client(context)
         # self.milvus_client = Milvus_Client(context)
 

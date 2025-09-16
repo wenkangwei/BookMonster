@@ -521,16 +521,6 @@ class EnermyState (BaseModel):
 
 
 
-# @app.post("/select_monster")
-# async def select_monster(request:Optional[dict] = None ):
-#     try:
-#         pass
-#     except Exception as e:
-#         log_operation("select_monster", str(e), level="error")
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
-
 @app.post("/init_monster")
 async def initalize_monster(request: Optional[dict] = None):
     """
@@ -542,6 +532,7 @@ async def initalize_monster(request: Optional[dict] = None):
         print("request: ",request)
         monster_ls = list(gb_state.player_monsters_states.values())
         res = {"monsters": monster_ls}
+        print("res = ", res)
         return res
     except Exception as e:
         log_operation("initalize_monster ", str(e), level="error")
@@ -693,126 +684,6 @@ async def enemy_action(request: Dict):
     except Exception as e:
         log_operation("Ollama错误", str(e), level="error")
         raise HTTPException(status_code=500, detail=str(e))
-
-
-
-
-
-# @app.post("/enemy_action")
-# async def enemy_action(request: EnermyState):
-#     """
-#     调用Ollama生成回复
-#     输入:
-#         {
-#             "monster_id": 0,
-#             "current_hp": 0,
-#             "available_question_ids": ["20230405009", "20230405010"],
-#             "health_state": "health"
-#         }
-#     输出:
-#         bookmonster json
-#     请求示例：
-#     {
-#         "action": "attack",
-#         "tools": question_id
-#     }
-
-#     return format:
-#         {
-#         "action": "attack",
-#         "tools": {
-#             "question_id": question_id,
-#             "question_difficulty": question_difficulty,
-#             "question": question,
-#             "answer1": answer1,
-#             "answer2": answer2,
-#             "answer3": answer3,
-#             "correct_answer": correct_answer,
-#         },
-#         "reply": "我会攻击你"
-#         }
-#     """
-#     ret_response = {
-#         "action": "attack",
-#         "tools": ""
-#     }
-#     print("request: ",request)
-#     try:
-#         async with httpx.AsyncClient() as client:
-#             next_action_prompt = NextAction_Prompt()
-#             # 调用Ollama的生成API
-#             monster_id= int(request.monster_id)
-#             print("monster_id: ", monster_id)
-#             print("len(gb_state.enermy_monsters_states): ", len(gb_state.enermy_monsters_states))
-#             if monster_id < len(gb_state.enermy_monsters_states):
-#                 action_list = [ v['question'] for v in gb_state.enermy_monsters_states[monster_id].remain_question.values()]
-#                 enemy_state = str(gb_state.enermy_monsters_states[0].get_states())
-#             else:
-#                 action_list = []
-#                 enemy_state = ""
-#             for question in gb_state.enermy_monsters_states[monster_id].remain_question:
-#                 if question[0] in request.available_question_ids:
-#                     action_list.append(question)
-        
-#             print("action_list: ", action_list)
-#             print(f"{OLLAMA_BASE_URL}/api/generate: ", OLLAMA_CHAT_MODEL)
-#             if len(gb_state.player_monsters_states) > 0:
-#                 player_state = str(gb_state.player_monsters_states[0].get_states())
-#             else:   
-#                 player_state = ""
-#             response = await client.post(
-#                 f"{OLLAMA_BASE_URL}/api/generate",
-#                 json={
-#                     "model": OLLAMA_CHAT_MODEL,
-#                     "prompt": next_action_prompt.system_prompt.format(state=enemy_state
-#                                     , enermy_state=player_state
-#                                     , action=action_list) 
-#                                 + "\n"+ next_action_prompt.format_prompt,
-#                     "stream": False  # 非流式响应
-#                 },
-#                 timeout=60.0
-#             )
-#             response.raise_for_status()
-#             result = response.json()
-#             print(OLLAMA_CHAT_MODEL +" Result: " + str(result['response']))
-#             if result.get("response", "No response") != "No response":
-#                 resp = result.get("response")
-#                 json_response = json.loads(resp.strip())
-#                 question_id = json_response.get('tools', '').strip()
-#                 tools = {}
-#                 if question_id in gb_state.enermy_monsters_states[monster_id].remain_question:
-#                     # pop 出来的tools 的json格式是 {question:['','',''], answer1:"",answer2:"",answer3:"", correct_answer:""}
-#                     tools = gb_state.enermy_monsters_states[monster_id].remain_question.pop(question_id)
-#                     print("selected tools: ", tools)
-#                     question_info = tools.pop('question')
-#                     tools['question_id'] = question_info[0] if not question_info[0].startswith("questions_") else question_info[0][10:]
-#                     tools['question_difficulty'] = question_info[2]
-#                     tools['question'] = question_info[1]
-                    
-#                     # correct_answer_k = tools['correct_answer']
-#                     # correct_answer = tools.pop("answer"+correct_answer_k)
-#                     # answer_list = []
-#                     # for k in tools:
-#                     #     if k.startswith("answer"):
-#                     #         answer_list.append(tools[k])
-#                     # for i in range(len(answer_list)):
-#                     #     tools["answer"+str(i+1)] = answer_list[i]
-#                     # tools["correct_answer"] = correct_answer
-#                 ret_response =  {
-#                     'status': 'success',
-#                     'action': json_response.get('action', 'attack'),
-#                     'tools': tools
-#                 }
-        
-#         print("ret_response: ", ret_response)
-#         log_operation("Ollama对话", str(ret_response))
-#         return ret_response
-#     except httpx.HTTPStatusError as e:
-#         log_operation("enermy_action错误", f"HTTP错误: {e.response.text}", level="error")
-#         raise HTTPException(status_code=e.response.status_code, detail="Ollama服务错误")
-#     except Exception as e:
-#         log_operation("Ollama错误", str(e), level="error")
-#         raise HTTPException(status_code=500, detail=str(e))
 
 
 # ----------------------
@@ -1232,22 +1103,6 @@ async def generate_bookmonster(request : dict):
 
 
 
-# 辅助函数：获取图片尺寸
-def get_image_dimensions(img_path):
-    from PIL import Image
-    with Image.open(img_path) as img:
-        return {"width": img.width, "height": img.height}
-
-
-
-# 纯文本接口
-@app.post("/api/text")
-async def text_endpoint(request: TextRequest):
-    return {
-        "response": f"已收到文本请求: {request.prompt}",
-        "model": request.model
-    }
-
 # 多模态接口（Base64图片）
 @app.post("/api/image_base64")
 async def image_base64_endpoint(request: ImageRequest):
@@ -1267,29 +1122,6 @@ async def image_base64_endpoint(request: ImageRequest):
         "image_size": len(image_data)
     }
 
-# 多模态接口（文件上传）
-@app.post("/api/image_upload")
-async def image_upload_endpoint(
-    prompt: str,
-    model: str,
-    file: UploadFile = File(...)
-):
-    # 保存上传的文件
-    contents = await file.read()
-    with open(file.filename, "wb") as f:
-        f.write(contents)
-    
-    return {
-        "response": f"已上传图片: {file.filename}",
-        "prompt": prompt,
-        "file_size": len(contents)
-    }
-
-# 调试接口（打印原始请求）
-@app.post("/api/debug")
-async def debug_endpoint(raw_request: dict):
-    print("收到的原始请求:", raw_request)
-    return {"debug_data": raw_request}
 
 if __name__ == "__main__":
     # # Debug

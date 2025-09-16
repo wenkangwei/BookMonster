@@ -31,8 +31,9 @@ memory:
     index: book_monster
   faiss:
     data_root: /home/wwk/workspace/ai_project/BookMonster/data/memory/faiss
-    index_name: ./faiss.index
-    dimension: 128
+    index_name: chunk_vector_faiss.index
+    dict_file: faiss_dict.json
+    dimension: 768
   mysql:
     host: localhost
     port: 3306
