@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 15000) // 15秒超时
 
-      const response = await fetch("http://localhost:8000/generate_bookmonster", {
+      const response = await fetch("http://localhost:8004/generate_bookmonster", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

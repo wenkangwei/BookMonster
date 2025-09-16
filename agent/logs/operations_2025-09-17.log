@@ -1,0 +1,4 @@
+{'timestamp': '2025-09-17T01:17:14.750092', 'action': 'Ollama错误', 'details': 'cannot unpack non-iterable bool object', 'object_id': None}
+{'timestamp': '2025-09-17T01:17:40.608779', 'action': 'Ollama错误', 'details': 'cannot unpack non-iterable bool object', 'object_id': None}
+{'timestamp': '2025-09-17T01:20:29.100913', 'action': 'Processing generate_bookmonster prompt:', 'details': '', 'object_id': None}
+{'timestamp': '2025-09-17T01:21:42.886873', 'action': 'Ollama错误', 'details': 'cannot unpack non-iterable bool object', 'object_id': None}
