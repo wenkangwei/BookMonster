@@ -1,0 +1,12 @@
+{'timestamp': '2025-09-18T02:19:11.466236', 'action': 'generate_bookmonster error: ', 'details': "bad operand type for unary +: 'str'", 'object_id': None}
+{'timestamp': '2025-09-18T02:24:03.064020', 'action': 'generate_bookmonster error: ', 'details': "bad operand type for unary +: 'str'", 'object_id': None}
+{'timestamp': '2025-09-18T02:27:52.456540', 'action': 'generate_bookmonster error: ', 'details': "bad operand type for unary +: 'str'", 'object_id': None}
+{'timestamp': '2025-09-18T02:28:55.442281', 'action': 'generate_bookmonster error: ', 'details': "bad operand type for unary +: 'str'", 'object_id': None}
+{'timestamp': '2025-09-18T02:29:46.034668', 'action': 'generate_bookmonster error: ', 'details': "bad operand type for unary +: 'str'", 'object_id': None}
+{'timestamp': '2025-09-18T02:30:55.074317', 'action': 'generate_bookmonster error: ', 'details': "bad operand type for unary +: 'str'", 'object_id': None}
+{'timestamp': '2025-09-18T02:33:18.254195', 'action': 'generate_bookmonster error: ', 'details': "bad operand type for unary +: 'str'", 'object_id': None}
+{'timestamp': '2025-09-18T02:34:53.182200', 'action': 'generate_bookmonster error: ', 'details': "'coroutine' object has no attribute 'replace'", 'object_id': None}
+{'timestamp': '2025-09-18T02:36:27.932237', 'action': 'generate_bookmonster error: ', 'details': 'asyncio.run() cannot be called from a running event loop', 'object_id': None}
+{'timestamp': '2025-09-18T02:38:46.389294', 'action': 'generate_bookmonster error: ', 'details': 'Expecting property name enclosed in double quotes: line 2 column 5 (char 6)', 'object_id': None}
+{'timestamp': '2025-09-18T02:42:31.599446', 'action': 'generate_bookmonster error: ', 'details': "unsupported operand type(s) for -: 'list' and 'int'", 'object_id': None}
+{'timestamp': '2025-09-18T23:59:09.253759', 'action': 'generate_bookmonster error: ', 'details': "cannot access local variable 'monster_state' where it is not associated with a value", 'object_id': None}

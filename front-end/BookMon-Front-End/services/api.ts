@@ -22,7 +22,7 @@ class ApiError extends Error {
 }
 
 // 通用请求函数 - 调用Next.js API路由
-async function apiRequest<T>(endpoint: string, options: RequestInit = {}, timeout = 10000): Promise<T> {
+async function apiRequest<T>(endpoint: string, options: RequestInit = {}, timeout = 1000000): Promise<T> {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), timeout)
 
@@ -166,12 +166,16 @@ export class GameApiService {
       let imagePath = ""
 
       if (data.pdfFile) {
-        pdfPath = await processFile(data.pdfFile, "pdf")
+        // // 发送处理文件
+        // pdfPath = await processFile(data.pdfFile, "pdf")
+        pdfPath = data.pdfFile
         console.log("PDF processed:", pdfPath)
       }
 
       if (data.imageFile) {
-        imagePath = await processFile(data.imageFile, "image")
+        // // 发送处理文件
+        // imagePath = await processFile(data.imageFile, "image")
+        imagePath = data.imageFile
         console.log("Image processed:", imagePath)
       }
 

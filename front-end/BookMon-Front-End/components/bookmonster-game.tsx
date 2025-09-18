@@ -37,19 +37,19 @@ const BATTLE_FIELDS: BattleField[] = [
   {
     id: "field-1",
     name: "草原",
-    image: "/placeholder.svg?height=400&width=800",
+    image: "/field_images/grassland.png?height=400&width=800",
     description: "绿意盎然的草原，适合草系书籍怪兽",
   },
   {
     id: "field-2",
     name: "海滩",
-    image: "/placeholder.svg?height=400&width=800",
+    image: "/field_images/beach.png?height=400&width=800",
     description: "波光粼粼的海滩，适合水系书籍怪兽",
   },
   {
     id: "field-3",
     name: "火山",
-    image: "/placeholder.svg?height=400&width=800",
+    image: "/field_images/volcano.png?height=400&width=800",
     description: "炽热的火山地带，适合火系书籍怪兽",
   },
 ]
@@ -109,6 +109,7 @@ export default function BookMonsterGame() {
     gamePhase: "initial",
     selectedField: BATTLE_FIELDS[0],
     items: DEFAULT_ITEMS,
+    reply: "",
   })
 
   // 音乐管理逻辑
@@ -218,17 +219,18 @@ export default function BookMonsterGame() {
         currentTurn: "player",
         isAnimating: false,
         currentQuestion: {
-          questionId: aiDecision.question[0],
-          content: aiDecision.question[1],
-          difficulty: aiDecision.question[2],
-          answers: [aiDecision.answer1, aiDecision.answer2, aiDecision.answer3, aiDecision.answer4],
-          correctAnswer: aiDecision.correct_answer,
+          questionId: aiDecision.tools.question[0],
+          content: aiDecision.tools.question[1],
+          difficulty: aiDecision.tools.question[2],
+          answers: [aiDecision.tools.answer1, aiDecision.tools.answer2, aiDecision.tools.answer3, aiDecision.tools.answer4],
+          correctAnswer: aiDecision.tools.correct_answer,
         },
+        reply: aiDecision.reply || "",
       }))
 
       battleLogger.logEnemyAction(
         battleState.enemyBookMonster.name,
-        aiDecision.question[1],
+        aiDecision.tools.question[1],
         0, // 问题阶段不造成伤害
         battleState.playerBookMonster.name,
       )

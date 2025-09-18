@@ -1,0 +1,13 @@
+{'timestamp': '2025-09-19T00:12:09.647046', 'action': 'enemy_action error: ', 'details': 'can only concatenate str (not "int") to str', 'object_id': None}
+{'timestamp': '2025-09-19T01:06:53.757167', 'action': 'enemy_action error: ', 'details': "'player_current_hp'", 'object_id': None}
+{'timestamp': '2025-09-19T01:09:19.299402', 'action': 'enemy_action error: ', 'details': "'player_current_hp'", 'object_id': None}
+{'timestamp': '2025-09-19T01:12:08.140152', 'action': 'enemy_action error: ', 'details': "bad operand type for unary +: 'str'", 'object_id': None}
+{'timestamp': '2025-09-19T01:16:13.167854', 'action': 'enemy_action error: ', 'details': "bad operand type for unary +: 'str'", 'object_id': None}
+{'timestamp': '2025-09-19T01:19:53.513488', 'action': 'enemy_action error: ', 'details': "bad operand type for unary +: 'str'", 'object_id': None}
+{'timestamp': '2025-09-19T01:24:25.624920', 'action': 'enemy_action error: ', 'details': "'list' object cannot be interpreted as an integer", 'object_id': None}
+{'timestamp': '2025-09-19T01:27:21.136445', 'action': 'enemy_action error: ', 'details': 'asyncio.run() cannot be called from a running event loop', 'object_id': None}
+{'timestamp': '2025-09-19T01:28:53.454559', 'action': 'enemy_action error: ', 'details': "Error code: 400 - {'error': {'message': 'invalid message format', 'type': 'invalid_request_error', 'param': None, 'code': None}}", 'object_id': None}
+{'timestamp': '2025-09-19T01:31:13.572198', 'action': 'enemy_action error: ', 'details': "Error code: 400 - {'error': {'message': 'invalid message format', 'type': 'invalid_request_error', 'param': None, 'code': None}}", 'object_id': None}
+{'timestamp': '2025-09-19T01:36:28.390974', 'action': 'enemy_action error: ', 'details': "Error code: 400 - {'error': {'message': 'invalid message format', 'type': 'invalid_request_error', 'param': None, 'code': None}}", 'object_id': None}
+{'timestamp': '2025-09-19T01:48:23.333990', 'action': 'enemy_action error: ', 'details': "name 'ennumerate' is not defined", 'object_id': None}
+{'timestamp': '2025-09-19T02:19:20.504463', 'action': 'generate_bookmonster error: ', 'details': "Error code: 500 - {'error': {'message': 'Failed to create new sequence: failed to process inputs: image: unknown format\\n', 'type': 'api_error', 'param': None, 'code': None}}", 'object_id': None}

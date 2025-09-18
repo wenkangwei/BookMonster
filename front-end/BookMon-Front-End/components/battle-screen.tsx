@@ -78,7 +78,7 @@ export function BattleScreen({
   // 监听当前问题变化，显示问题气泡
   useEffect(() => {
     if (battleState.currentQuestion && battleState.currentTurn === "player") {
-      const questionText = `${battleState.currentQuestion.content}\n\n请选择正确的应对方式：\nA. ${battleState.currentQuestion.answers[0]}\nB. ${battleState.currentQuestion.answers[1]}\nC. ${battleState.currentQuestion.answers[2]}\nD. ${battleState.currentQuestion.answers[3]}\n\n选择错误将受到${battleState.currentQuestion.difficulty}点伤害！`
+      const questionText = `${battleState.currentQuestion.content}\n\n ${battleState.reply} 请选择正确的应对方式：\nA. ${battleState.currentQuestion.answers[0]}\nB. ${battleState.currentQuestion.answers[1]}\nC. ${battleState.currentQuestion.answers[2]}\nD. ${battleState.currentQuestion.answers[3]}\n\n选择错误将受到${battleState.currentQuestion.difficulty}点伤害！`
 
       setEnemyBubble({
         message: questionText,

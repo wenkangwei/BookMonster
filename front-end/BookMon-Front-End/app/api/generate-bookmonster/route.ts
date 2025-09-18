@@ -13,13 +13,13 @@ function stringToSeed(str: string): number {
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i)
     hash = (hash << 5) - hash + char
-    hash = hash & hash // Convert to 32bit integer
+    hash = hash & hash
   }
   return Math.abs(hash)
 }
 
 // 生成后备书籍怪兽数据
-function generateFallbackBookMonster(title: string, description: string): BackendMonsterState {
+function generateFallbackBookMonster(title: string, description: string, imagePath?: string): BackendMonsterState {
   const seed = stringToSeed(title)
   const attributes = ["火", "水", "草", "电", "地面", "飞行", "钢", "超能力", "岩石", "冰"]
   const attribute = attributes[Math.floor(seededRandom(seed) * attributes.length)]
@@ -33,7 +33,8 @@ function generateFallbackBookMonster(title: string, description: string): Backen
   return {
     monster_id: Date.now(),
     monster_name: title,
-    monster_image: `/placeholder.svg?height=128&width=128&query=${encodeURIComponent(title + " book monster")}`,
+    monster_image:
+      imagePath || `/placeholder.svg?height=128&width=128&query=${encodeURIComponent(title + " book monster")}`,
     attribute,
     book_name: title,
     book_id: `book_${Date.now()}`,
@@ -73,12 +74,17 @@ export async function POST(request: NextRequest) {
 
     const { title, description, pdf, image, is_player } = body as GenerateBookMonsterRequest
 
+    console.log("File paths received:", {
+      pdfPath: pdf || "none",
+      imagePath: image || "none",
+    })
+
     // 尝试调用后端API
     try {
       console.log("Attempting to call backend API at http://localhost:8004/generate_bookmonster")
 
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 15000) // 15秒超时
+      const timeoutId = setTimeout(() => controller.abort(), 600000) // 15秒超时
 
       const response = await fetch("http://localhost:8004/generate_bookmonster", {
         method: "POST",
@@ -121,7 +127,7 @@ export async function POST(request: NextRequest) {
 
       // 使用本地后备数据生成
       console.log("Generating fallback book monster locally...")
-      const fallbackMonster = generateFallbackBookMonster(title, description)
+      const fallbackMonster = generateFallbackBookMonster(title, description, image)
 
       console.log("Generated fallback book monster:", fallbackMonster.monster_name)
       return NextResponse.json(fallbackMonster)

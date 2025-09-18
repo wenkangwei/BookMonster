@@ -54,7 +54,19 @@ export interface EnemyActionRequest {
   player_win: boolean
 }
 
-export interface EnemyActionResponse extends BackendSkill {}
+// export interface EnemyActionResponse extends BackendSkill {}
+export interface EnemyActionResponse 
+{
+  tools:{
+    question: [string, string, string] // [question_id, content, difficulty]
+    answer1: string
+    answer2: string
+    answer3: string
+    answer4: string
+    correct_answer: string // "1", "2", "3", "4"
+  }
+  reply?: string
+}
 
 // 前端游戏类型定义 - 改名为BookMonster
 export interface BookMonster {
@@ -150,13 +162,14 @@ export interface BattleState {
     answers: string[]
     correctAnswer: string
   }
+  reply?: string
 }
 
 export interface CreateBookMonsterData {
   title: string
   description: string
-  pdfFile?: File
-  imageFile?: File
+  pdfFile?: string
+  imageFile?: string
 }
 
 export type MusicType = "battle-start" | "winning" | "losing" | "victory"
