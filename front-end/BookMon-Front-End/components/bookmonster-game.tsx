@@ -75,6 +75,7 @@ export default function BookMonsterGame() {
   const [gamePhase, setGamePhase] = useState<
     "initial" | "menu" | "battle" | "capture" | "defeat" | "victory" | "congratulations"
   >("initial")
+  const [playerWin, setplayerWin] = useState<true | false>(false)
   const [playerBookMonster, setPlayerBookMonster] = useState<BookMonster | null>(null)
   const [capturedBookMonsters, setCapturedBookMonsters] = useState<BookMonster[]>([])
   const [enemyBookMonsters, setEnemyBookMonsters] = useState<BookMonster[]>([])
@@ -112,15 +113,30 @@ export default function BookMonsterGame() {
     reply: "",
   })
 
+
+
+ //请求已经创建的monster列表
+ useEffect(() => {
+  const fetchEnemyMonsters = async () => {
+    const created_eneym_monster_response = await GameApiService.GetEnemyMonster()
+    setEnemyBookMonsters(created_eneym_monster_response)  
+  }
+
+  fetchEnemyMonsters()
+}, []) 
+   
+
+
+
   // 音乐管理逻辑
   useEffect(() => {
     if (gamePhase === "battle" && battleState.playerBookMonster && battleState.enemyBookMonster) {
       const playerHpRatio = battleState.playerBookMonster.hp / battleState.playerBookMonster.maxHp
       const enemyHpRatio = battleState.enemyBookMonster.hp / battleState.enemyBookMonster.maxHp
 
-      if (playerHpRatio > enemyHpRatio) {
+      if (playerHpRatio > 0.3) {
         setCurrentMusic("winning")
-      } else if (playerHpRatio < enemyHpRatio) {
+      } else if (playerHpRatio < 0.3) {
         setCurrentMusic("losing")
       } else {
         setCurrentMusic("battle-start")
@@ -209,7 +225,7 @@ export default function BookMonsterGame() {
         player_monster_id: battleState.playerBookMonster.monsterId,
         player_hp: battleState.playerBookMonster.hp,
         player_state: battleState.playerBookMonster.healthState,
-        player_win: false, // 初始状态
+        player_win: playerWin, // 初始状态
       })
 
       // 设置当前问题信息
@@ -263,7 +279,7 @@ export default function BookMonsterGame() {
       setBattleState((prev) => ({ ...prev, isAnimating: true }))
 
       const isCorrect = (answerIndex + 1).toString() === battleState.currentQuestion?.correctAnswer
-
+      setplayerWin(isCorrect)
       if (isCorrect) {
         // 答对了：玩家不扣血，敌方扣血
         const damage = Number.parseInt(battleState.currentQuestion.difficulty) || 20
@@ -408,10 +424,10 @@ export default function BookMonsterGame() {
     [battleState, handleEnemyAttack],
   )
 
-  const handleUsePokeball = useCallback(() => {
-    if (!battleState.enemyBookMonster) return
+  const handleUsePokeball = useCallback((possbility: number ) => {
+    if (!battleState.enemyBookMonster) return false
 
-    const captureSuccess = Math.random() > 0.3
+    const captureSuccess = Math.random() > possbility // 50%捕捉成功率
 
     if (captureSuccess) {
       const capturedBookMonster = { ...battleState.enemyBookMonster, isPlayerOwned: true }
@@ -419,6 +435,8 @@ export default function BookMonsterGame() {
       setCapturedBookMonster(capturedBookMonster)
       setBattleState((prev) => ({ ...prev, battleResult: "capture", currentQuestion: undefined }))
       setGamePhase("congratulations")
+
+      return true
     } else {
       setBattleState((prev) => ({
         ...prev,
@@ -430,6 +448,7 @@ export default function BookMonsterGame() {
         handleEnemyAttack()
       }, 2000)
     }
+    return false
   }, [battleState.enemyBookMonster, handleEnemyAttack])
 
   const handleBackToMenu = useCallback(() => {

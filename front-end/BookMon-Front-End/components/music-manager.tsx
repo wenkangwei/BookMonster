@@ -13,10 +13,10 @@ interface MusicManagerProps {
 }
 
 const MUSIC_FILES: Record<MusicType, string> = {
-  "battle-start": "/audio/battle-start.mp3",
-  winning: "/audio/winning.mp3",
-  losing: "/audio/losing.mp3",
-  victory: "/audio/victory.mp3",
+  "battle-start": "/audio/game_battle_start.mp3",
+  winning: "/audio/game_battle.mp3",
+  losing: "/audio/game_lose.mp3",
+  victory: "/audio/game_win.mp3",
 }
 
 export function MusicManager({ currentMusic, volume = 0.5, onVolumeChange, inBattle = false }: MusicManagerProps) {

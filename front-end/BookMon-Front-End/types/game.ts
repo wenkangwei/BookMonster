@@ -32,6 +32,10 @@ export interface InitMonsterResponse {
   monster: BackendMonsterState[]
 }
 
+export interface GetEnemyMonsterResponse {
+  monster: BackendMonsterState[]
+}
+
 // 生成角色接口
 export interface GenerateBookMonsterRequest {
   pdf?: string

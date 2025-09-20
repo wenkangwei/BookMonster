@@ -471,8 +471,8 @@ class EnvironmentState():
         self.init_monster_ls = self.monster_brochure.load_brochure(init_path)
         # # load generated monster
         path = os.path.join(self.monster_brochure.monster_data_root, "brochure_monsters.jsonl")
-        enermy_monsters_states = self.monster_brochure.load_brochure(path)
-        self.enermy_monsters_states = {m['monster_id']:MonsterState(m) for m in enermy_monsters_states}
+        self.enemy_monster_ls = self.monster_brochure.load_brochure(path)
+        self.enermy_monsters_states = {m['monster_id']:MonsterState(m) for m in self.enemy_monster_ls}
         # self.monster_brochure.udpate_brochure(init_monster_ls + generated_monster_ls)
         # print("init_monster_ls: ", init_monster_ls)
         # for i, v in enumerate(init_monster_ls):
@@ -713,6 +713,29 @@ async def initalize_monster(request: dict):
     except Exception as e:
         log_operation("initalize_monster ", str(e), level="error")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+@app.post("/get_enemy_monster")
+async def get_enemy_monster(request: dict):
+    """
+    调用Ollama的多模态模型生成图片
+    注意：需要Ollama已拉取支持多模态的模型（如llava）
+    """
+    try:
+        # load the first monster from json
+        print(" get_enemy_monster request: ",request)
+        monster_ls = gb_state.enemy_monster_ls
+        res = {"monster": monster_ls}
+        print("get_enemy_monster res = ", res)
+        return res
+    except Exception as e:
+        log_operation("get_enemy_monster ", str(e), level="error")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
 
 
 
@@ -1035,6 +1058,8 @@ question_id_list: {action}
     async def pick_question(monster_id, enemy_state, player_state):
         import random
         question_data = gb_state.generation_agent.memory_client.es_client._get_all_documents_scroll(str(monster_id))
+        if not question_data:
+            return {}
         question_ls = [ q["_source"]["doc"] for q in question_data]
 
         q_idx_map= { q["_source"]["doc"]['question'][0] : idx for idx, q in enumerate(question_data)}
@@ -1059,6 +1084,7 @@ question_id_list: {action}
         # 存储到队列
         try:
             response_str = qa.replace("```json\n", '').replace("```", '')
+            response_str = response_str.find("}")!=-1 and response_str[response_str.find("{"):response_str.rfind("}")+1] or response_str
             json_response = json.loads(response_str)
             question_id = json_response.get('tools', '').strip()
             question_id = q_idx_map[question_id]
@@ -1086,9 +1112,11 @@ question_id_list: {action}
         enemy_state = "Your current_hp:" + str(request["current_hp"]) + ", health_state:" + str(request["health_state"]) + "\n"
         print("enemy_state = ",enemy_state)
 
-        player_state =  "player current_hp:" + str(request["player_hp"]) + ", health_state:" + str(request["player_state"]) + ", player win in last term:" + str(request["player_win"]) + "\n"
+        player_state =  "player current_hp:" + str(request["player_hp"]) + ", health_state:" + str(request["player_state"]) + ", 玩家是否在上一局获胜:" + str(request["player_win"]) + "\n"
         print("player_state = ",player_state)
         result = await pick_question(monster_id, enemy_state, player_state)
+        if not result:
+            raise ValueError("No question data found for monster_id: " + str(monster_id) + "result =" + str(result))
         print("pick question result: " , str(result))
         response.update(result)
         print("response =", response)

@@ -1,18 +1,17 @@
 # 待办
-[ ] 添加数据库功能存放对战日志， 创建的monster数据， 前端和后端对数据库进行交互
-[ ] 用MCP把多模态LLM接到 chat LLM工具调用里面
+[x] 添加数据库功能存放对战日志， 创建的monster数据， 前端和后端对数据库进行交互
+[x] 用MCP把多模态LLM接到 chat LLM工具调用里面
 [ ] bookmonster 支持defend 和闪避功能
-[ ] 修复道具使用和bgm，精灵球功能
+[x] 修复道具使用和bgm，精灵球功能
+
+[x] test redis in docker
+[x] pdf parser and save chunks to milvus
+[x] test elasticsearch and bm25 in docker
+[x] test MySql in docker
 
 
-[ ] test redis in docker
-[ ] pdf parser and save chunks to milvus
-[ ] test elasticsearch and bm25 in docker
-[ ] test MySql in docker
-
-
-
-# 打包conda env 到docker镜像
+# 环境配置
+## 打包conda env 到docker镜像
 
 ~~~
 conda install -c conda-forge conda-pack
@@ -49,6 +48,30 @@ COPY . /app
 CMD ["python", "agent.py"]
 ~~~
 
+## python环境
+~~~shell
+#cat all_requirements.txt | grep -E "torch|cuda|torchvision|torchaudio|pydantic|openai|fastapi|faiss|elastic|sql|milvus|redis|tiktoken|PyPDF2|markdown|bs4"
+# 只要安装 requrirements.txt
+
+# conda 安装
+conda env create -n agent_env -f requirement.txt
+
+#或者python 安装
+pip install requirement.txt
+
+~~~
+# 运行
+~~~shell
+# 启动docker+前后端
+cd docker/ && sh start_docker_services.sh start
+
+#仅启动后端
+sh start_backend.sh
+
+#仅启动前端
+sh start_front_end.sh
+
+~~~
 
 
 # 基础类角色对象

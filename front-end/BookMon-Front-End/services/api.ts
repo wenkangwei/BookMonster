@@ -1,5 +1,6 @@
 import type {
   InitMonsterResponse,
+  GetEnemyMonsterResponse,
   GenerateBookMonsterRequest,
   GenerateBookMonsterResponse,
   EnemyActionRequest,
@@ -148,6 +149,23 @@ export class GameApiService {
       })
 
       console.log("Init monster service response:", response)
+      return response.monster.map((monster) => convertBackendToBookMonster(monster, true))
+    } catch (error) {
+      console.error("Init monster service failed:", error)
+      throw error
+    }
+  }
+
+
+  static async GetEnemyMonster(): Promise<BookMonster[]> {
+    try {
+      console.log("=== GameApiService.initMonster ===")
+      const response = await apiRequest<GetEnemyMonsterResponse>("/get-enemy-monsters", {
+        method: "POST",
+        body: JSON.stringify({}),
+      })
+
+      console.log("Get monster service response:", response)
       return response.monster.map((monster) => convertBackendToBookMonster(monster, true))
     } catch (error) {
       console.error("Init monster service failed:", error)

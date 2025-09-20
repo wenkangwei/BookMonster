@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
           answer4: "使用地面系技能",
           correct_answer: "1",
         },
-      reply: "请选择正确的应对方式：",
+      reply: "准备好，问题来咯",
     },
 
         {
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
           answer4: "使用治疗技能",
           correct_answer: "1",
         },
-      reply: "请选择正确的应对方式：",
+      reply: "准备好，问题来咯",
     },
 
 
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
           answer4: "使用冰系技能",
           correct_answer: "2",
         },
-      reply: "请选择正确的应对方式：",
+      reply: "准备好，问题来咯",
     },
 
     {
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
           answer4: "使用地面系技能",
           correct_answer: "2",
         },
-      reply: "请选择正确的应对方式：",
+      reply: "准备好，问题来咯",
     }
         
         

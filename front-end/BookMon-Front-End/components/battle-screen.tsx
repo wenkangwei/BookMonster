@@ -13,7 +13,7 @@ interface BattleScreenProps {
   battleState: BattleState
   onUseSkill: (skill: Skill, answerIndex: number) => void
   onUseItem: (itemId: string) => void
-  onUsePokeball: () => void
+  onUsePokeball: ( possbility: number ) => boolean
   onBackToMenu: () => void
   onRestart: () => void
   onEnemyAttack: () => void
@@ -78,7 +78,7 @@ export function BattleScreen({
   // 监听当前问题变化，显示问题气泡
   useEffect(() => {
     if (battleState.currentQuestion && battleState.currentTurn === "player") {
-      const questionText = `${battleState.currentQuestion.content}\n\n ${battleState.reply} 请选择正确的应对方式：\nA. ${battleState.currentQuestion.answers[0]}\nB. ${battleState.currentQuestion.answers[1]}\nC. ${battleState.currentQuestion.answers[2]}\nD. ${battleState.currentQuestion.answers[3]}\n\n选择错误将受到${battleState.currentQuestion.difficulty}点伤害！`
+      const questionText = `  ${battleState.enemyBookMonster?.name}: ${battleState.reply}\n问题: ${battleState.currentQuestion.content}\n请选择正确的应对方式：\nA. ${battleState.currentQuestion.answers[0]}\nB. ${battleState.currentQuestion.answers[1]}\nC. ${battleState.currentQuestion.answers[2]}\nD. ${battleState.currentQuestion.answers[3]}\n\n选择错误将受到${battleState.currentQuestion.difficulty}点伤害!  `
 
       setEnemyBubble({
         message: questionText,
@@ -131,7 +131,7 @@ export function BattleScreen({
 
     // 3. 显示玩家技能气泡
     setPlayerBubble({
-      message: `使用${skill.name}！`,
+      message: `  使用${skill.name}!  `,
       isVisible: true,
     })
 
@@ -192,7 +192,19 @@ export function BattleScreen({
       isVisible: true,
     })
 
-    onUsePokeball()
+    var possbility = 0.5 
+    if (battleState.enemyBookMonster &&battleState.enemyBookMonster.maxHp
+      && battleState.enemyBookMonster?.hp
+    ){
+      possbility =  battleState.enemyBookMonster.hp/battleState.enemyBookMonster.maxHp
+    }
+    
+    if (!onUsePokeball(possbility)){
+      setPlayerBubble({
+      message: "精灵球使用失败！",
+      isVisible: true,
+    })
+    }
 
     setTimeout(() => {
       setPlayerBubble({
@@ -311,7 +323,7 @@ export function BattleScreen({
       </div>
 
       {/* 玩家书籍怪兽 - 调整位置给底栏留出更多空间 */}
-      <div className="absolute bottom-40 sm:bottom-48 left-4 sm:left-8 landscape:left-12 max-w-[45%] landscape:max-w-[35%]">
+      <div className="absolute bottom-60 sm:bottom-61 left-4 sm:left-8 landscape:left-12 max-w-[45%] landscape:max-w-[35%]">
         <div className="text-center relative">
           <img
             src={playerBookMonster.image || "/placeholder.svg"}
@@ -354,7 +366,7 @@ export function BattleScreen({
       </div>
 
       {/* 底部对话框和选项 - 增加高度 */}
-      <div className="absolute bottom-0 left-0 right-0 h-40 sm:h-48 bg-amber-100 border-t-4 border-amber-800">
+      <div className="absolute bottom-0 left-0 right-0 h-60 sm:h-68 bg-amber-100 border-t-4 border-amber-800">
         <div className="flex h-full">
           {/* 战斗日志面板 - 缩小宽度 */}
           <div className="w-48 sm:w-56 flex-shrink-0">
@@ -458,7 +470,7 @@ export function BattleScreen({
                   className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold"
                   variant="default"
                 >
-                  <span className="text-sm">🥎 精灵球</span>
+                  <span className="text-sm">🥎 捕捉</span>
                 </Button>
                 <Button
                   onClick={handleRunAway}
