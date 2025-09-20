@@ -21,6 +21,51 @@
 ## docker 环境
 docker安装请参考我之前的文章： https://mp.weixin.qq.com/s/OMtb1DL_ik2TvENzWHWGsg
 
+如果docker pull 镜像出问题，大概率是镜像源访问问题。 这个可以参考： https://zhuanlan.zhihu.com/p/24228872523
+
+在daemon.json文件加入下面国内的镜像源
+
+~~~shell
+#vi /etc/docker/daemon.json
+{
+  "registry-mirrors" : ["https://docker.registry.cyou",
+"https://docker-cf.registry.cyou",
+"https://dockercf.jsdelivr.fyi",
+"https://docker.jsdelivr.fyi",
+"https://dockertest.jsdelivr.fyi",
+"https://mirror.aliyuncs.com",
+"https://dockerproxy.com",
+"https://mirror.baidubce.com",
+"https://docker.m.daocloud.io",
+"https://docker.nju.edu.cn",
+"https://docker.mirrors.sjtug.sjtu.edu.cn",
+"https://docker.mirrors.ustc.edu.cn",
+"https://mirror.iscas.ac.cn",
+"https://docker.rainbond.cc",
+"https://do.nark.eu.org",
+"https://dc.j8.work",
+"https://dockerproxy.com",
+"https://gst6rzl9.mirror.aliyuncs.com",
+"https://registry.docker-cn.com",
+"http://hub-mirror.c.163.com",
+"http://mirrors.ustc.edu.cn/",
+"https://mirrors.tuna.tsinghua.edu.cn/",
+"http://mirrors.sohu.com/" 
+],
+ "insecure-registries" : [
+    "registry.docker-cn.com",
+    "docker.mirrors.ustc.edu.cn"
+    ],
+"debug": true,
+"experimental": false
+}
+~~~
+
+然后重启docker
+~~~shell
+sudo systemctl restart docker
+~~~
+
 
 ## 打包conda env 到docker镜像
 如果有需要把conda 环境打包到docker镜像里面用，请参考下面， 否则直接跳过这部分内容
