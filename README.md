@@ -17,8 +17,13 @@
 
 
 # 环境配置
-## 打包conda env 到docker镜像
 
+## docker 环境
+docker安装请参考我之前的文章： https://mp.weixin.qq.com/s/OMtb1DL_ik2TvENzWHWGsg
+
+
+## 打包conda env 到docker镜像
+如果有需要把conda 环境打包到docker镜像里面用，请参考下面， 否则直接跳过这部分内容
 ~~~
 conda install -c conda-forge conda-pack
 conda pack -n agent_env -o agent_env.tar.gz
@@ -54,7 +59,10 @@ COPY . /app
 CMD ["python", "agent.py"]
 ~~~
 
-## python环境
+
+## python环境 安装
+本项目的python环境使用python3.13.5版本
+
 ~~~shell
 #cat all_requirements.txt | grep -E "torch|cuda|torchvision|torchaudio|pydantic|openai|fastapi|faiss|elastic|sql|milvus|redis|tiktoken|PyPDF2|markdown|bs4"
 # 只要安装 requrirements.txt
@@ -66,6 +74,8 @@ conda env create -n agent_env -f requirement.txt
 pip install -r requirement.txt
 
 ~~~
+
+
 # 运行
 ~~~shell
 # 启动docker+前后端
