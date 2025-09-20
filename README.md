@@ -63,7 +63,7 @@ CMD ["python", "agent.py"]
 conda env create -n agent_env -f requirement.txt
 
 #或者python 安装
-pip install requirement.txt
+pip install -r requirement.txt
 
 ~~~
 # 运行
