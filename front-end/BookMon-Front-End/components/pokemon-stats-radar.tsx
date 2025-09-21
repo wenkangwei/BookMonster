@@ -9,7 +9,7 @@ interface PokemonStatsRadarProps {
 
 export function PokemonStatsRadar({ stats, size = 120 }: PokemonStatsRadarProps) {
   const center = size / 2
-  const radius = size / 2 - 20
+  const radius = size / 2 - 5
   const maxStat = 100
 
   const statLabels = [
@@ -81,7 +81,7 @@ export function PokemonStatsRadar({ stats, size = 120 }: PokemonStatsRadarProps)
             style={{
               left: labelPoint.x,
               top: labelPoint.y,
-              transform: "translate(-50%, -50%) rotate(90deg)",
+              transform: "translate(-50%, -50%) rotate(0deg)",
             }}
           >
             {label}

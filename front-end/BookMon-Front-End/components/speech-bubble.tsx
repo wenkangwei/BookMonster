@@ -66,7 +66,7 @@ export function SpeechBubble({
     const messageLength = message.length
     if (messageLength <= 20) return "w-48 sm:w-56" // 短消息
     if (messageLength <= 40) return "w-56 sm:w-72" // 中等消息
-    if (messageLength <= 80) return "w-100 sm:w-100" // 长消息
+    if (messageLength <= 80) return "w-72 sm:w-96" // 长消息
     return "w-80 sm:w-[28rem]" // 超长消息
   }
 

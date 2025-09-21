@@ -418,7 +418,7 @@ export default function BookMonsterGame() {
       } else {
         setTimeout(() => {
           handleEnemyAttack()
-        }, 2000)
+        }, 60000)
       }
     },
     [battleState, handleEnemyAttack],
@@ -446,7 +446,7 @@ export default function BookMonsterGame() {
       }))
       setTimeout(() => {
         handleEnemyAttack()
-      }, 2000)
+      }, 60000)
     }
     return false
   }, [battleState.enemyBookMonster, handleEnemyAttack])
@@ -520,7 +520,7 @@ export default function BookMonsterGame() {
   return (
     <ResponsiveLayout className="h-full">
       <NetworkStatus />
-      <MusicManager currentMusic={currentMusic} volume={musicVolume} onVolumeChange={setMusicVolume} />
+      {/* <MusicManager currentMusic={currentMusic} volume={musicVolume} onVolumeChange={setMusicVolume} /> */}
       <div className="h-full w-full flex">
         <GameSidebar
           playerBookMonster={playerBookMonster}
