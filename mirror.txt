@@ -1,0 +1,5 @@
+清华大学	https://pypi.tuna.tsinghua.edu.cn/simple	最常用，同步频率高，综合体验好
+阿里云	http://mirrors.aliyun.com/pypi/simple/	速度快，阿里系服务稳定
+中国科技大学	https://pypi.mirrors.ustc.edu.cn/simple/	老牌镜像源，教育网友好
+豆瓣	http://pypi.douban.com/simple/	老牌镜像源，速度稳定
+华为云	https://repo.huaweicloud.com/repository/pypi/simple	后起之秀，速度快且稳定
