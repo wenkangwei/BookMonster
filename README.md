@@ -18,6 +18,24 @@
 
 # 环境配置
 
+## AMD mini 环境安装ROCm,amd gpu 驱动
+参考：
+https://blog.gitcode.com/8d57100fe90a9e3067ab2824a03309bc.html
+
+安装之后，跑下面命令
+~~~shell
+sudo usermod -a -G render $LOGNAME
+sudo usermod -a -G video $LOGNAME
+sudo reboot
+
+#用下面命令检查是否成功
+lsmod | grep amdgpu
+
+rocm-smi
+rocminfo
+~~~
+
+
 ## docker 环境
 docker安装请参考我之前的文章： https://mp.weixin.qq.com/s/OMtb1DL_ik2TvENzWHWGsg
 
@@ -120,6 +138,17 @@ pip install -r requirement.txt
 
 ~~~
 
+# 前端pnpm 和npm安装
+
+~~~shell
+sudo apt install nodejs
+sudo apt install npm
+npm install -g pnpm
+npm install next react react-dom
+pnpm -v
+
+~~~
+
 
 # 运行
 ~~~shell
@@ -133,6 +162,9 @@ sh start_backend.sh
 sh start_front_end.sh
 
 ~~~
+
+
+
 
 
 # 基础类角色对象
