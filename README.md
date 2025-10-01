@@ -15,6 +15,10 @@
 
 [x] test MySql in docker
 
+# 组件架构
+
+<img width="563" height="731" alt="image" src="https://github.com/user-attachments/assets/2baba3db-3f34-4d21-b4ca-0cadee3f9273" />
+
 
 # 环境配置
 
