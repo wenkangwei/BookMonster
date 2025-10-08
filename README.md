@@ -1,9 +1,11 @@
 # 📚 BookMonster目标
 学习新知识的时候总会遇到下面这些问题
-![alt text](image.png)
+
+![alt text](doc/images/image.png)
 
 这个项目结合大模型与游戏机制，打造一个集角色生成、对战、捕捉于一体的互动游戏， 让你碎片化学习自己收藏的书籍
-![alt text](image-1.png)
+
+![alt text](doc/images/image-1.png)
 
 # 🏗️ 组件架构
 
