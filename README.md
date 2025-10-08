@@ -1,3 +1,10 @@
+# 📚 BookMonster目标
+学习新知识的时候总会遇到下面这些问题
+![alt text](image.png)
+
+这个项目结合大模型与游戏机制，打造一个集角色生成、对战、捕捉于一体的互动游戏， 让你碎片化学习自己收藏的书籍
+![alt text](image-1.png)
+
 # 🏗️ 组件架构
 
 <img width="563" height="731" alt="image" src="https://github.com/user-attachments/assets/2baba3db-3f34-4d21-b4ca-0cadee3f9273" />
@@ -6,7 +13,7 @@
 
 # ⚙️ 环境配置
 
-## 🖥️ AMD mini 环境安装 ROCm & AMD GPU 驱动
+## (可选)🖥️ AMD mini 环境安装 ROCm & AMD GPU 驱动
 
 参考：[安装教程](https://blog.gitcode.com/8d57100fe90a9e3067ab2824a03309bc.html)
 
@@ -241,3 +248,5 @@ monster_state = {
 ---
 
 > 📢 **欢迎贡献与反馈！**
+- 微信(wechat): WindwithFreedom
+- 小红书号(RedNote): 2224614234
