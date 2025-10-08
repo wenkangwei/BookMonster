@@ -250,5 +250,4 @@ monster_state = {
 ---
 
 > 📢 **欢迎贡献与反馈！**
-- 微信(wechat): WindwithFreedom
 - 小红书号(RedNote): 2224614234
