@@ -256,8 +256,15 @@ monster_state = {
 - 📹 [BookMonster 生成角色v4 视频链接](./doc/video/生成角色v4.mp4)
 
 
+https://github.com/user-attachments/assets/59866c59-9b95-489b-94c8-63f0777093ca
+
+
 **2. 角色对战和捕捉**  
-<video controls src="doc/video/捕捉怪物系统.mp4" title="Title"></video>
+<video controls src=" title="Title"></video>
+
+
+https://github.com/user-attachments/assets/09a12dbc-b027-43b0-a7c5-9e8c4cf5c87b
+
 
 
 - 📹 [BookMonster 捕捉怪物系统 视频链接](./doc/video/捕捉怪物系统.mp4)
