@@ -248,11 +248,19 @@ monster_state = {
 
 # 🎬 Demo 展示
 
+- 📹 [BookMonster Demo 视频链接](./doc/demo.mp4)
+
 **1. 上传文件文本多模态生成角色**  
 <video controls src="doc/video/生成角色v4.mp4" title="Title"></video>
 
+- 📹 [BookMonster 生成角色v4 视频链接](./doc/video/生成角色v4.mp4)
+
+
 **2. 角色对战和捕捉**  
 <video controls src="doc/video/捕捉怪物系统.mp4" title="Title"></video>
+
+
+- 📹 [BookMonster 捕捉怪物系统 视频链接](./doc/video/捕捉怪物系统.mp4)
 
 ---
 
@@ -266,6 +274,7 @@ monster_state = {
 - ✅ 测试 redis、elasticsearch、MySQL、pdf parser、milvus 等在 docker 下的集成
 
 ---
+
 
 > 📢 **欢迎贡献与反馈！**
 - 小红书号(RedNote): 2224614234
